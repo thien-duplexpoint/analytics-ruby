@@ -1,15 +1,15 @@
-require 'forwardable'
-require 'segment/analytics/logging'
+require "forwardable"
+require "segment_io/analytics/logging"
 
-module Segment
+module SegmentIo
   class Analytics
     # A batch of `Message`s to be sent to the API
     class MessageBatch
       class JSONGenerationError < StandardError; end
 
       extend Forwardable
-      include Segment::Analytics::Logging
-      include Segment::Analytics::Defaults::MessageBatch
+      include SegmentIo::Analytics::Logging
+      include SegmentIo::Analytics::Defaults::MessageBatch
 
       def initialize(max_message_count)
         @messages = []
@@ -26,7 +26,7 @@ module Segment
 
         message_json_size = message_json.bytesize
         if message_too_big?(message_json_size)
-          logger.error('a message exceeded the maximum allowed size')
+          logger.error("a message exceeded the maximum allowed size")
         else
           @messages << message
           @json_size += message_json_size + 1 # One byte for the comma

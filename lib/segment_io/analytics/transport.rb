@@ -1,18 +1,18 @@
-require 'segment/analytics/defaults'
-require 'segment/analytics/utils'
-require 'segment/analytics/response'
-require 'segment/analytics/logging'
-require 'segment/analytics/backoff_policy'
-require 'net/http'
-require 'net/https'
-require 'json'
+require "segment_io/analytics/defaults"
+require "segment_io/analytics/utils"
+require "segment_io/analytics/response"
+require "segment_io/analytics/logging"
+require "segment_io/analytics/backoff_policy"
+require "net/http"
+require "net/https"
+require "json"
 
-module Segment
+module SegmentIo
   class Analytics
     class Transport
-      include Segment::Analytics::Defaults::Request
-      include Segment::Analytics::Utils
-      include Segment::Analytics::Logging
+      include SegmentIo::Analytics::Defaults::Request
+      include SegmentIo::Analytics::Utils
+      include SegmentIo::Analytics::Logging
 
       def initialize(options = {})
         options[:host] ||= HOST
@@ -22,7 +22,7 @@ module Segment
         @path = options[:path] || PATH
         @retries = options[:retries] || RETRIES
         @backoff_policy =
-          options[:backoff_policy] || Segment::Analytics::BackoffPolicy.new
+          options[:backoff_policy] || SegmentIo::Analytics::BackoffPolicy.new
 
         http = Net::HTTP.new(options[:host], options[:port])
         http.use_ssl = options[:ssl]
@@ -40,7 +40,7 @@ module Segment
 
         last_response, exception = retry_with_backoff(@retries) do
           status_code, body = send_request(write_key, batch)
-          error = JSON.parse(body)['error']
+          error = JSON.parse(body)["error"]
           should_retry = should_retry_request?(status_code, body)
           logger.debug("Response status code: #{status_code}")
           logger.debug("Response error: #{error}") if error
@@ -109,16 +109,16 @@ module Segment
       def send_request(write_key, batch)
         payload = JSON.generate(
           :sentAt => datetime_in_iso8601(Time.now),
-          :batch => batch
+          :batch => batch,
         )
         request = Net::HTTP::Post.new(@path, @headers)
         request.basic_auth(write_key, nil)
 
         if self.class.stub
           logger.debug "stubbed request to #{@path}: " \
-            "write key = #{write_key}, batch = #{JSON.generate(batch)}"
+                       "write key = #{write_key}, batch = #{JSON.generate(batch)}"
 
-          [200, '{}']
+          [200, "{}"]
         else
           @http.start unless @http.started? # Maintain a persistent connection
           response = @http.request(request, payload)
@@ -130,7 +130,7 @@ module Segment
         attr_writer :stub
 
         def stub
-          @stub || ENV['STUB']
+          @stub || ENV["STUB"]
         end
       end
     end

@@ -1,6 +1,6 @@
-require 'spec_helper'
+require "spec_helper"
 
-module Segment
+module SegmentIo
   class Analytics
     describe Client do
       let(:client) do
@@ -11,50 +11,50 @@ module Segment
       end
       let(:queue) { client.instance_variable_get :@queue }
 
-      describe '#initialize' do
-        it 'errors if no write_key is supplied' do
+      describe "#initialize" do
+        it "errors if no write_key is supplied" do
           expect { Client.new }.to raise_error(ArgumentError)
         end
 
-        it 'does not error if a write_key is supplied' do
+        it "does not error if a write_key is supplied" do
           expect do
             Client.new :write_key => WRITE_KEY
           end.to_not raise_error
         end
 
-        it 'does not error if a write_key is supplied as a string' do
+        it "does not error if a write_key is supplied as a string" do
           expect do
-            Client.new 'write_key' => WRITE_KEY
+            Client.new "write_key" => WRITE_KEY
           end.to_not raise_error
         end
       end
 
-      describe '#track' do
-        it 'errors without an event' do
-          expect { client.track(:user_id => 'user') }.to raise_error(ArgumentError)
+      describe "#track" do
+        it "errors without an event" do
+          expect { client.track(:user_id => "user") }.to raise_error(ArgumentError)
         end
 
-        it 'errors without a user_id' do
-          expect { client.track(:event => 'Event') }.to raise_error(ArgumentError)
+        it "errors without a user_id" do
+          expect { client.track(:event => "Event") }.to raise_error(ArgumentError)
         end
 
-        it 'errors if properties is not a hash' do
+        it "errors if properties is not a hash" do
           expect {
             client.track({
-              :user_id => 'user',
-              :event => 'Event',
-              :properties => [1, 2, 3]
+              :user_id => "user",
+              :event => "Event",
+              :properties => [1, 2, 3],
             })
           }.to raise_error(ArgumentError)
         end
 
-        it 'uses the timestamp given' do
-          time = Time.parse('1990-07-16 13:30:00.123 UTC')
+        it "uses the timestamp given" do
+          time = Time.parse("1990-07-16 13:30:00.123 UTC")
 
           client.track({
-            :event => 'testing the timestamp',
-            :user_id => 'joe',
-            :timestamp => time
+            :event => "testing the timestamp",
+            :user_id => "joe",
+            :timestamp => time,
           })
 
           msg = queue.pop
@@ -62,31 +62,31 @@ module Segment
           expect(Time.parse(msg[:timestamp])).to eq(time)
         end
 
-        it 'does not error with the required options' do
+        it "does not error with the required options" do
           expect do
             client.track Queued::TRACK
             queue.pop
           end.to_not raise_error
         end
 
-        it 'does not error when given string keys' do
+        it "does not error when given string keys" do
           expect do
             client.track Utils.stringify_keys(Queued::TRACK)
             queue.pop
           end.to_not raise_error
         end
 
-        it 'converts time and date properties into iso8601 format' do
+        it "converts time and date properties into iso8601 format" do
           client.track({
-            :user_id => 'user',
-            :event => 'Event',
+            :user_id => "user",
+            :event => "Event",
             :properties => {
               :time => Time.utc(2013),
-              :time_with_zone => Time.zone.parse('2013-01-01'),
+              :time_with_zone => Time.zone.parse("2013-01-01"),
               :date_time => DateTime.new(2013, 1, 1),
               :date => Date.new(2013, 1, 1),
-              :nottime => 'x'
-            }
+              :nottime => "x",
+            },
           })
 
           message = queue.pop
@@ -100,39 +100,39 @@ module Segment
           date = Date.new(2013, 1, 1)
           expect(Date.iso8601(properties[:date])).to eq(date)
 
-          expect(properties[:nottime]).to eq('x')
+          expect(properties[:nottime]).to eq("x")
         end
       end
 
-      describe '#identify' do
-        it 'errors without any user id' do
+      describe "#identify" do
+        it "errors without any user id" do
           expect { client.identify({}) }.to raise_error(ArgumentError)
         end
 
-        it 'does not error with the required options' do
+        it "does not error with the required options" do
           expect do
             client.identify Queued::IDENTIFY
             queue.pop
           end.to_not raise_error
         end
 
-        it 'does not error with the required options as strings' do
+        it "does not error with the required options as strings" do
           expect do
             client.identify Utils.stringify_keys(Queued::IDENTIFY)
             queue.pop
           end.to_not raise_error
         end
 
-        it 'converts time and date traits into iso8601 format' do
+        it "converts time and date traits into iso8601 format" do
           client.identify({
-            :user_id => 'user',
+            :user_id => "user",
             :traits => {
               :time => Time.utc(2013),
-              :time_with_zone =>  Time.zone.parse('2013-01-01'),
+              :time_with_zone => Time.zone.parse("2013-01-01"),
               :date_time => DateTime.new(2013, 1, 1),
               :date => Date.new(2013, 1, 1),
-              :nottime => 'x'
-            }
+              :nottime => "x",
+            },
           })
 
           message = queue.pop
@@ -146,58 +146,58 @@ module Segment
           date = Date.new(2013, 1, 1)
           expect(Date.iso8601(traits[:date])).to eq(date)
 
-          expect(traits[:nottime]).to eq('x')
+          expect(traits[:nottime]).to eq("x")
         end
       end
 
-      describe '#alias' do
-        it 'errors without from' do
+      describe "#alias" do
+        it "errors without from" do
           expect { client.alias :user_id => 1234 }.to raise_error(ArgumentError)
         end
 
-        it 'errors without to' do
+        it "errors without to" do
           expect { client.alias :previous_id => 1234 }.to raise_error(ArgumentError)
         end
 
-        it 'does not error with the required options' do
+        it "does not error with the required options" do
           expect { client.alias ALIAS }.to_not raise_error
         end
 
-        it 'does not error with the required options as strings' do
+        it "does not error with the required options as strings" do
           expect do
             client.alias Utils.stringify_keys(ALIAS)
           end.to_not raise_error
         end
       end
 
-      describe '#group' do
-        it 'errors without group_id' do
-          expect { client.group :user_id => 'foo' }.to raise_error(ArgumentError)
+      describe "#group" do
+        it "errors without group_id" do
+          expect { client.group :user_id => "foo" }.to raise_error(ArgumentError)
         end
 
-        it 'errors without user_id' do
-          expect { client.group :group_id => 'foo' }.to raise_error(ArgumentError)
+        it "errors without user_id" do
+          expect { client.group :group_id => "foo" }.to raise_error(ArgumentError)
         end
 
-        it 'does not error with the required options' do
+        it "does not error with the required options" do
           client.group Queued::GROUP
         end
 
-        it 'does not error with the required options as strings' do
+        it "does not error with the required options as strings" do
           client.group Utils.stringify_keys(Queued::GROUP)
         end
 
-        it 'converts time and date traits into iso8601 format' do
+        it "converts time and date traits into iso8601 format" do
           client.identify({
-            :user_id => 'user',
-            :group_id => 'group',
+            :user_id => "user",
+            :group_id => "group",
             :traits => {
               :time => Time.utc(2013),
-              :time_with_zone =>  Time.zone.parse('2013-01-01'),
+              :time_with_zone => Time.zone.parse("2013-01-01"),
               :date_time => DateTime.new(2013, 1, 1),
               :date => Date.new(2013, 1, 1),
-              :nottime => 'x'
-            }
+              :nottime => "x",
+            },
           })
 
           message = queue.pop
@@ -211,45 +211,45 @@ module Segment
           date = Date.new(2013, 1, 1)
           expect(Date.iso8601(traits[:date])).to eq(date)
 
-          expect(traits[:nottime]).to eq('x')
+          expect(traits[:nottime]).to eq("x")
         end
       end
 
-      describe '#page' do
-        it 'errors without user_id' do
-          expect { client.page :name => 'foo' }.to raise_error(ArgumentError)
+      describe "#page" do
+        it "errors without user_id" do
+          expect { client.page :name => "foo" }.to raise_error(ArgumentError)
         end
 
-        it 'does not error with the required options' do
+        it "does not error with the required options" do
           expect { client.page Queued::PAGE }.to_not raise_error
         end
 
-        it 'accepts name' do
-          client.page :name => 'foo', :user_id => 1234
+        it "accepts name" do
+          client.page :name => "foo", :user_id => 1234
 
           message = queue.pop
           expect(message[:userId]).to eq(1234)
-          expect(message[:name]).to eq('foo')
+          expect(message[:name]).to eq("foo")
         end
       end
 
-      describe '#screen' do
-        it 'errors without user_id' do
-          expect { client.screen :name => 'foo' }.to raise_error(ArgumentError)
+      describe "#screen" do
+        it "errors without user_id" do
+          expect { client.screen :name => "foo" }.to raise_error(ArgumentError)
         end
 
-        it 'does not error with the required options' do
+        it "does not error with the required options" do
           expect { client.screen Queued::SCREEN }.to_not raise_error
         end
 
-        it 'does not error with the required options as strings' do
+        it "does not error with the required options as strings" do
           expect do
             client.screen Utils.stringify_keys(Queued::SCREEN)
           end.to_not raise_error
         end
       end
 
-      describe '#flush' do
+      describe "#flush" do
         let(:client_with_worker) {
           Client.new(:write_key => WRITE_KEY).tap { |client|
             queue = client.instance_variable_get(:@queue)
@@ -257,7 +257,7 @@ module Segment
           }
         }
 
-        it 'waits for the queue to finish on a flush' do
+        it "waits for the queue to finish on a flush" do
           client_with_worker.identify Queued::IDENTIFY
           client_with_worker.track Queued::TRACK
           client_with_worker.flush
@@ -266,7 +266,7 @@ module Segment
         end
 
         unless defined? JRUBY_VERSION
-          it 'completes when the process forks' do
+          it "completes when the process forks" do
             client_with_worker.identify Queued::IDENTIFY
 
             Process.fork do
@@ -280,12 +280,12 @@ module Segment
         end
       end
 
-      context 'common' do
+      context "common" do
         check_property = proc { |msg, k, v| msg[k] && msg[k] == v }
 
-        let(:data) { { :user_id => 1, :group_id => 2, :previous_id => 3, :anonymous_id => 4, :message_id => 5, :event => 'coco barked', :name => 'coco' } }
+        let(:data) { { :user_id => 1, :group_id => 2, :previous_id => 3, :anonymous_id => 4, :message_id => 5, :event => "coco barked", :name => "coco" } }
 
-        it 'does not convert ids given as fixnums to strings' do
+        it "does not convert ids given as fixnums to strings" do
           %i[track screen page identify].each do |s|
             client.send(s, data)
             message = queue.pop(true)
@@ -295,7 +295,7 @@ module Segment
           end
         end
 
-        it 'returns false if queue is full' do
+        it "returns false if queue is full" do
           client.instance_variable_set(:@max_queue_size, 1)
 
           %i[track screen page group identify alias].each do |s|
@@ -305,17 +305,17 @@ module Segment
           end
         end
 
-        it 'converts message id to string' do
+        it "converts message id to string" do
           %i[track screen page group identify alias].each do |s|
             client.send(s, data)
             message = queue.pop(true)
 
-            expect(check_property.call(message, :messageId, '5')).to eq(true)
+            expect(check_property.call(message, :messageId, "5")).to eq(true)
           end
         end
 
-        context 'group' do
-          it 'does not convert ids given as fixnums to strings' do
+        context "group" do
+          it "does not convert ids given as fixnums to strings" do
             client.group(data)
             message = queue.pop(true)
 
@@ -324,8 +324,8 @@ module Segment
           end
         end
 
-        context 'alias' do
-          it 'does not convert ids given as fixnums to strings' do
+        context "alias" do
+          it "does not convert ids given as fixnums to strings" do
             client.alias(data)
             message = queue.pop(true)
 
@@ -334,9 +334,9 @@ module Segment
           end
         end
 
-        it 'sends integrations' do
+        it "sends integrations" do
           %i[track screen page group identify alias].each do |s|
-            client.send s, :integrations => { :All => true, :Salesforce => false }, :user_id => 1, :group_id => 2, :previous_id => 3, :anonymous_id => 4, :event => 'coco barked', :name => 'coco'
+            client.send s, :integrations => { :All => true, :Salesforce => false }, :user_id => 1, :group_id => 2, :previous_id => 3, :anonymous_id => 4, :event => "coco barked", :name => "coco"
             message = queue.pop(true)
             expect(message[:integrations][:All]).to eq(true)
             expect(message[:integrations][:Salesforce]).to eq(false)

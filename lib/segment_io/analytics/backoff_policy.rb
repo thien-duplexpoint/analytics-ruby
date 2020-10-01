@@ -1,9 +1,9 @@
-require 'segment/analytics/defaults'
+require "segment_io/analytics/defaults"
 
-module Segment
+module SegmentIo
   class Analytics
     class BackoffPolicy
-      include Segment::Analytics::Defaults::BackoffPolicy
+      include SegmentIo::Analytics::Defaults::BackoffPolicy
 
       # @param [Hash] opts
       # @option opts [Numeric] :min_timeout_ms The minimum backoff timeout
@@ -23,7 +23,7 @@ module Segment
 
       # @return [Numeric] the next backoff interval, in milliseconds.
       def next_interval
-        interval = @min_timeout_ms * (@multiplier**@attempts)
+        interval = @min_timeout_ms * (@multiplier ** @attempts)
         interval = add_jitter(interval, @randomization_factor)
 
         @attempts += 1

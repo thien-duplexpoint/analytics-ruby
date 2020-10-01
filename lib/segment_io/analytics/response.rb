@@ -1,4 +1,4 @@
-module Segment
+module SegmentIo
   class Analytics
     class Response
       attr_reader :status, :error
@@ -8,7 +8,7 @@ module Segment
       #
       def initialize(status = 200, error = nil)
         @status = status
-        @error  = error
+        @error = error
       end
     end
   end

@@ -1,40 +1,40 @@
 # https://github.com/codecov/codecov-ruby#usage
-require 'simplecov'
+require "simplecov"
 SimpleCov.start
-require 'codecov'
+require "codecov"
 SimpleCov.formatter = SimpleCov::Formatter::Codecov
 
-require 'segment/analytics'
-require 'active_support/time'
+require "segment_io/analytics"
+require "active_support/time"
 
 # Setting timezone for ActiveSupport::TimeWithZone to UTC
-Time.zone = 'UTC'
+Time.zone = "UTC"
 
-module Segment
+module SegmentIo
   class Analytics
-    WRITE_KEY = 'testsecret'
+    WRITE_KEY = "testsecret"
 
     TRACK = {
-      :event => 'Ruby Library test event',
+      :event => "Ruby Library test event",
       :properties => {
-        :type => 'Chocolate',
+        :type => "Chocolate",
         :is_a_lie => true,
         :layers => 20,
-        :created =>  Time.new
-      }
+        :created => Time.new,
+      },
     }
 
     IDENTIFY = {
       :traits => {
         :likes_animals => true,
-        :instrument => 'Guitar',
-        :age => 25
-      }
+        :instrument => "Guitar",
+        :age => 25,
+      },
     }
 
     ALIAS = {
       :previous_id => 1234,
-      :user_id => 'abcd'
+      :user_id => "abcd",
     }
 
     GROUP = {}
@@ -42,7 +42,7 @@ module Segment
     PAGE = {}
 
     SCREEN = {
-      :name => 'main'
+      :name => "main",
     }
 
     USER_ID = 1234
@@ -61,18 +61,18 @@ module Segment
     module Requested
       TRACK = TRACK.merge({
         :userId => USER_ID,
-        :type => 'track'
+        :type => "track",
       })
 
       IDENTIFY = IDENTIFY.merge({
         :userId => USER_ID,
-        :type => 'identify'
+        :type => "identify",
       })
 
       GROUP = GROUP.merge({
         :groupId => GROUP_ID,
         :userId => USER_ID,
-        :type => 'group'
+        :type => "group",
       })
 
       PAGE = PAGE.merge :userId => USER_ID
@@ -110,7 +110,7 @@ class FakeBackoffPolicy
   end
 
   def next_interval
-    raise 'FakeBackoffPolicy has no values left' if @interval_values.empty?
+    raise "FakeBackoffPolicy has no values left" if @interval_values.empty?
     @interval_values.shift
   end
 end

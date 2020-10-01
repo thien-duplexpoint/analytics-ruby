@@ -1,11 +1,11 @@
-module Segment
+module SegmentIo
   class Analytics
     # Handles parsing fields according to the Segment Spec
     #
     # @see https://segment.com/docs/spec/
     class FieldParser
       class << self
-        include Segment::Analytics::Utils
+        include SegmentIo::Analytics::Utils
 
         # In addition to the common fields, track accepts:
         #
@@ -17,15 +17,15 @@ module Segment
           event = fields[:event]
           properties = fields[:properties] || {}
 
-          check_presence!(event, 'event')
-          check_is_hash!(properties, 'properties')
+          check_presence!(event, "event")
+          check_is_hash!(properties, "properties")
 
           isoify_dates! properties
 
           common.merge({
-            :type => 'track',
+            :type => "track",
             :event => event.to_s,
-            :properties => properties
+            :properties => properties,
           })
         end
 
@@ -36,12 +36,12 @@ module Segment
           common = parse_common_fields(fields)
 
           traits = fields[:traits] || {}
-          check_is_hash!(traits, 'traits')
+          check_is_hash!(traits, "traits")
           isoify_dates! traits
 
           common.merge({
-            :type => 'identify',
-            :traits => traits
+            :type => "identify",
+            :traits => traits,
           })
         end
 
@@ -52,11 +52,11 @@ module Segment
           common = parse_common_fields(fields)
 
           previous_id = fields[:previous_id]
-          check_presence!(previous_id, 'previous_id')
+          check_presence!(previous_id, "previous_id")
 
           common.merge({
-            :type => 'alias',
-            :previousId => previous_id
+            :type => "alias",
+            :previousId => previous_id,
           })
         end
 
@@ -70,15 +70,15 @@ module Segment
           group_id = fields[:group_id]
           traits = fields[:traits] || {}
 
-          check_presence!(group_id, 'group_id')
-          check_is_hash!(traits, 'traits')
+          check_presence!(group_id, "group_id")
+          check_is_hash!(traits, "traits")
 
           isoify_dates! traits
 
           common.merge({
-            :type => 'group',
+            :type => "group",
             :groupId => group_id,
-            :traits => traits
+            :traits => traits,
           })
         end
 
@@ -89,17 +89,17 @@ module Segment
         def parse_for_page(fields)
           common = parse_common_fields(fields)
 
-          name = fields[:name] || ''
+          name = fields[:name] || ""
           properties = fields[:properties] || {}
 
-          check_is_hash!(properties, 'properties')
+          check_is_hash!(properties, "properties")
 
           isoify_dates! properties
 
           common.merge({
-            :type => 'page',
+            :type => "page",
             :name => name.to_s,
-            :properties => properties
+            :properties => properties,
           })
         end
 
@@ -115,15 +115,15 @@ module Segment
           properties = fields[:properties] || {}
           category = fields[:category]
 
-          check_presence!(name, 'name')
-          check_is_hash!(properties, 'properties')
+          check_presence!(name, "name")
+          check_is_hash!(properties, "properties")
 
           isoify_dates! properties
 
           parsed = common.merge({
-            :type => 'screen',
+            :type => "screen",
             :name => name,
-            :properties => properties
+            :properties => properties,
           })
 
           parsed[:category] = category if category
@@ -146,7 +146,7 @@ module Segment
           parsed = {
             :context => context,
             :messageId => message_id,
-            :timestamp => datetime_in_iso8601(timestamp)
+            :timestamp => datetime_in_iso8601(timestamp),
           }
 
           parsed[:userId] = fields[:user_id] if fields[:user_id]
@@ -161,16 +161,16 @@ module Segment
 
         def check_user_id!(fields)
           unless fields[:user_id] || fields[:anonymous_id]
-            raise ArgumentError, 'Must supply either user_id or anonymous_id'
+            raise ArgumentError, "Must supply either user_id or anonymous_id"
           end
         end
 
         def check_timestamp!(timestamp)
-          raise ArgumentError, 'Timestamp must be a Time' unless timestamp.is_a? Time
+          raise ArgumentError, "Timestamp must be a Time" unless timestamp.is_a? Time
         end
 
         def add_context!(context)
-          context[:library] = { :name => 'analytics-ruby', :version => Segment::Analytics::VERSION.to_s }
+          context[:library] = { :name => "analytics-ruby", :version => SegmentIo::Analytics::VERSION.to_s }
         end
 
         # private: Ensures that a string is non-empty

@@ -1,16 +1,16 @@
-require 'thread'
-require 'time'
+require "thread"
+require "time"
 
-require 'segment/analytics/defaults'
-require 'segment/analytics/logging'
-require 'segment/analytics/utils'
-require 'segment/analytics/worker'
+require "segment_io/analytics/defaults"
+require "segment_io/analytics/logging"
+require "segment_io/analytics/utils"
+require "segment_io/analytics/worker"
 
-module Segment
+module SegmentIo
   class Analytics
     class Client
-      include Segment::Analytics::Utils
-      include Segment::Analytics::Logging
+      include SegmentIo::Analytics::Utils
+      include SegmentIo::Analytics::Logging
 
       # @param [Hash] opts
       # @option opts [String] :write_key Your project's write_key
@@ -159,9 +159,9 @@ module Segment
           true
         else
           logger.warn(
-            'Queue is full, dropping events. The :max_queue_size ' \
-            'configuration parameter can be increased to prevent this from ' \
-            'happening.'
+            "Queue is full, dropping events. The :max_queue_size " \
+            "configuration parameter can be increased to prevent this from " \
+            "happening."
           )
           false
         end
@@ -169,7 +169,7 @@ module Segment
 
       # private: Checks that the write_key is properly initialized
       def check_write_key!
-        raise ArgumentError, 'Write key must be initialized' if @write_key.nil?
+        raise ArgumentError, "Write key must be initialized" if @write_key.nil?
       end
 
       def ensure_worker_running

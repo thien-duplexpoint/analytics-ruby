@@ -1,6 +1,6 @@
-require 'logger'
+require "logger"
 
-module Segment
+module SegmentIo
   class Analytics
     # Wraps an existing logger and adds a prefix to all messages
     class PrefixedLogger
@@ -32,13 +32,13 @@ module Segment
           return @logger if @logger
 
           base_logger = if defined?(Rails)
-                          Rails.logger
-                        else
-                          logger = Logger.new STDOUT
-                          logger.progname = 'Segment::Analytics'
-                          logger
-                        end
-          @logger = PrefixedLogger.new(base_logger, '[analytics-ruby]')
+              Rails.logger
+            else
+              logger = Logger.new STDOUT
+              logger.progname = "SegmentIo::Analytics"
+              logger
+            end
+          @logger = PrefixedLogger.new(base_logger, "[analytics-ruby]")
         end
 
         attr_writer :logger
